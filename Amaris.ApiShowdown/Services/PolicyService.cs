@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Amaris.ApiShowdown.Services
 {
-    public class PolicyService
+    public class PolicyService : IPolicyService
     {
         public async Task<IEnumerable<Policy>> GetPolicies()
         {

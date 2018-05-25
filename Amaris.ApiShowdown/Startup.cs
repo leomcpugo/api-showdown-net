@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Amaris.ApiShowdown.Services;
 
 namespace Amaris.ApiShowdown
 {
@@ -27,8 +28,15 @@ namespace Amaris.ApiShowdown
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<IAuthenticationService, AuthenticationService>();
+            services.AddTransient<IPolicyService, PolicyService>();
+            services.AddTransient<IUserService, UserService>();
             // Add framework services.
             services.AddMvc();
+
+            services.AddSingleton(Configuration);
+
+            services.AddSingleton<IConfiguration>(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Amaris.ApiShowdown.Services
 {
-    public class UserService
+    public class UserService : IUserService
     {
         public async Task<IEnumerable<User>> GetUsers()
         {

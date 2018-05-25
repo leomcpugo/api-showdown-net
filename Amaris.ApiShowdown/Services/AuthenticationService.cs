@@ -1,4 +1,5 @@
 ﻿using Amaris.ApiShowdown.Models;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -9,17 +10,27 @@ using System.Threading.Tasks;
 
 namespace Amaris.ApiShowdown.Services
 {
-    public class AuthenticationService
+    public class AuthenticationService : IAuthenticationService
     {
-        private const string Secret = "db3OIsj+BXE9NZDy0t8W3TcNekrF+2d/1sFnWG4HnV8TZY30iTOdtVWJG8abWvB1GlOgJuQZdcF2Luqm/hccMw==";
+        IConfiguration _configuration;
+
         private const int expireMinutes = 60;
+
+        public AuthenticationService(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
 
         public string SignToken(User user)
         {
-            var symmetricKey = Convert.FromBase64String(Secret);
+            var secret = _configuration.GetSection("MyConfig").GetSection("Secret").Value;
+            var configExpirationTime = _configuration.GetSection("MyConfig").GetSection("TokenExpiration").Value;
+            var symmetricKey = Convert.FromBase64String(secret);
             var tokenHandler = new JwtSecurityTokenHandler();
 
             var now = DateTime.UtcNow;
+
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
@@ -27,7 +38,7 @@ namespace Amaris.ApiShowdown.Services
                         new Claim(ClaimTypes.Sid, user.id)
                     }),
 
-                Expires = now.AddMinutes(Convert.ToInt32(expireMinutes)),
+                Expires = now.AddMinutes(Convert.ToInt32(configExpirationTime)),
 
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(symmetricKey), SecurityAlgorithms.HmacSha256Signature)
             };

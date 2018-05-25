@@ -12,6 +12,13 @@ namespace Amaris.ApiShowdown.Controllers
     [Route("api/[controller]")]
     public class AuthenticationController : Controller
     {
+        IAuthenticationService _authenticationService;
+
+        public AuthenticationController(IAuthenticationService authenticationService)
+        {
+            _authenticationService = authenticationService;
+        }
+
         // POST api/values
         [HttpPost]
         public async Task<ContentResult> Post([FromBody]AuthenticationForm form)
@@ -20,7 +27,7 @@ namespace Amaris.ApiShowdown.Controllers
 
             var response = new ContentResult
             {
-                Content = new AuthenticationService().SignToken(userList.FirstOrDefault(x => x.id == form.id)),
+                Content = _authenticationService.SignToken(userList.FirstOrDefault(x => x.id == form.id)),
                 StatusCode = 200
             };
 
