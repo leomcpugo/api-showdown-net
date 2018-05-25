@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Amaris.ApiShowdown.Services;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -20,6 +21,7 @@ namespace Amaris.ApiShowdown.Controllers
         }
 
         // POST api/values
+        [AllowAnonymous]
         [HttpPost]
         public async Task<ContentResult> Post([FromBody]AuthenticationForm form)
         {

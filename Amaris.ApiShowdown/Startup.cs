@@ -8,6 +8,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Amaris.ApiShowdown.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Amaris.ApiShowdown
 {
@@ -28,12 +31,40 @@ namespace Amaris.ApiShowdown
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Validation of JWT Token
+            var secret = Configuration.GetSection("MyConfig").GetSection("Secret").Value;
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = "amaris.com",
+                    ValidAudience = "amaris.com",
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret))
+                };
+            });
+
+            // Add policy only for admins
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminOnly",
+                    policy => policy.RequireClaim("IsAdmin"));
+            });
+
+            // Register all services
             services.AddTransient<IAuthenticationService, AuthenticationService>();
             services.AddTransient<IPolicyService, PolicyService>();
             services.AddTransient<IUserService, UserService>();
+            
             // Add framework services.
             services.AddMvc();
 
+            // Add Configuration for Dependency Injection
             services.AddSingleton(Configuration);
 
             services.AddSingleton<IConfiguration>(Configuration);

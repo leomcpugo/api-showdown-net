@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Amaris.ApiShowdown.Services
@@ -25,28 +26,25 @@ namespace Amaris.ApiShowdown.Services
         {
             var secret = _configuration.GetSection("MyConfig").GetSection("Secret").Value;
             var configExpirationTime = _configuration.GetSection("MyConfig").GetSection("TokenExpiration").Value;
-            var symmetricKey = Convert.FromBase64String(secret);
-            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var now = DateTime.UtcNow;
-
-
-            var tokenDescriptor = new SecurityTokenDescriptor
+            var claims = new[]
             {
-                Subject = new ClaimsIdentity(new[]
-                        {
-                        new Claim(ClaimTypes.Sid, user.id)
-                    }),
-
-                Expires = now.AddMinutes(Convert.ToInt32(configExpirationTime)),
-
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(symmetricKey), SecurityAlgorithms.HmacSha256Signature)
+                new Claim(ClaimTypes.Name, user.name),
+                new Claim(ClaimTypes.Sid, user.id),
+                new Claim(ClaimTypes.Role, user.role),
+                new Claim("IsAdmin", user.role == "admin" ? "true" : "false")
             };
 
-            var stoken = tokenHandler.CreateToken(tokenDescriptor);
-            var token = tokenHandler.WriteToken(stoken);
+            var token = new JwtSecurityToken(
+                issuer: "amaris.com",
+                audience: "amaris.com",
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(Convert.ToInt32(configExpirationTime)),
+                signingCredentials: creds);
 
-            return token;
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

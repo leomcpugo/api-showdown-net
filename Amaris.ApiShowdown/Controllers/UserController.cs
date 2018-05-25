@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Amaris.ApiShowdown.Services;
 using Amaris.ApiShowdown.Models;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -21,6 +22,7 @@ namespace Amaris.ApiShowdown.Controllers
         }
 
         // GET: api/values
+        [Authorize]
         [HttpGet]
         public async Task<User> Get(string id = null, string name = null)
         {

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Amaris.ApiShowdown.Services;
 using Amaris.ApiShowdown.Models;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -23,7 +24,8 @@ namespace Amaris.ApiShowdown.Controllers
             _userService = userService;
         }
 
-        // GET api/values/5
+        // GET 
+        [Authorize(Policy = "AdminOnly")]
         [HttpGet("{id}")]
         public async Task<Policy> Get(string id)
         {
@@ -31,7 +33,8 @@ namespace Amaris.ApiShowdown.Controllers
             return policiyList.First(x => x.id == id);
         }
 
-        // GET api/values/5
+        // GET 
+        [Authorize(Policy = "AdminOnly")]
         [HttpGet("name/{name}")]
         public async Task<IEnumerable<Policy>> GetByUserName(string name)
         {
